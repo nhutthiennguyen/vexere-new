@@ -14,8 +14,8 @@ const passport = require("passport");
 const passportStrategy = require("passport-facebook-token");
 const User = require("./models/user");
 const jwt = require("jsonwebtoken");
-const PORT = config.get("port");
-const cors = process.env.PORT || require("cors");
+const PORT = process.env.PORT || config.get("port");
+const cors = require("cors");
 
 const Signature = config.get("jwtSignature");
 
