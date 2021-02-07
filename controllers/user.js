@@ -6,6 +6,9 @@ const User = require("../models/user");
 const Signature = config.get("jwtSignature");
 const sgMailAPI = config.get("sgAPIKey");
 
+
+
+
 const createUser = async (req, res) => {
     const { username, password, email, phone } = req.body;
     try {
@@ -77,7 +80,9 @@ const updateUser = async (req, res) => {
         res.status(500).send({ message: "something went wrong" })
     }
 
-}
+};
+
+
 module.exports = {
     createUser,
     signIn,
