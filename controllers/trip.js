@@ -53,7 +53,6 @@ const postTrip = async (req, res) => {
 const getTrip = async (req, res) => {
   let { departure, arrival, date } = req.query;
   date = date + " 00:00:00";
-  console.log(date);
   try {
     const foundedTrips = await Trip.find({
       departurePlace: departure,
@@ -70,46 +69,29 @@ const getTrip = async (req, res) => {
 const bookTrip = async (req, res) => {
   const { tripId, seatId } = req.body;
   const session = await mongoose.startSession();
-  session.startTransaction;
+  session.startTransaction();
   try {
-    //check
     const foundedTrip = await Trip.findById(tripId).session(session);
-    if (!foundedTrip)
-      return res
-        .status(400)
-        .send({ message: "Invalid trip. Trip is not exist" });
-    const foundedIndex = foundedTrip.seats.findIndex(
-      (x) => x._id.toString() === seatId && x.status === "avaiable"
+    if (!foundedTrip) return res.status(400).send({ message: "invalid trip" });
+    const indexSeat = foundedTrip.seats.findIndex(
+      x => x._id.toString() === seatId && x.status === "avaiable"
     );
-    if (foundedIndex === -1)
-      return res.status(400).send({ message: " invalid seat" });
-    //update status seat
-    foundedTrip.seats[foundedIndex].user = req.user._id;
-    foundedTrip.seats[foundedIndex].status = "booked";
-
+    if (indexSeat === -1) return res.status(400).send({ message: "invalid seat" });
+    foundedTrip.seats[indexSeat].user = req.user._id;
+    foundedTrip.seats[indexSeat].status = "booked";
     await foundedTrip.save();
-
-    //create ticket with transaction
-    await Ticket.create(
-      [
-        {
-          user: req.user._id,
-          trip: foundedTrip._id,
-          seats: [foundedTrip.seats[foundedIndex]],
-        },
-      ],
+    await Ticket.create([{
+      user: req.user._id,
+      trip: foundedTrip._id,
+      seats: foundedTrip.seats[indexSeat]
+    }],
       { session: session }
     );
     await session.commitTransaction();
     session.endSession();
-    // const newTicket = new Ticket({
-    // user: req.user._id,
-    // trip: foundedTrip._id,
-    // seats: [foundedTrip.seats[foundedIndex]],
-    // });
-    // await newTicket.save();
-    res.send("success");
+    res.send('success');
   } catch (error) {
+    console.log(error);
     await session.abortTransaction();
     session.endSession();
     res.status(500).send({ message: "something went wrong" });
@@ -131,7 +113,9 @@ const deleteTrip = async (req, res) => {
     foundedTrip.status = "inactive";
     const result = await foundedTrip.save();
     res.send(result);
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).send({ message: "something went wrong" });
+  }
 };
 module.exports = {
   postTrip,

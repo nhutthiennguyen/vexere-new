@@ -43,7 +43,25 @@ const deleteStation = async (req, res) => {
     res.status(500).send({ message: "something went wrong" });
   }
 };
+const updateStation = async (req, res) => {
+  const { id } = req.query;
+  const { name, address, province } = req.body;
+  try {
+    const foundedStation = await Station.findById(id);
+    if (!foundedStation)
+      return res.status(400).send({ message: "invalid station" });
+    foundedStation.name = name;
+    foundedStation.address = address;
+    foundedStation.province = province;
+    const result = await foundedStation.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({ message: "something went wrong" });
+  }
+}
 module.exports = {
   postStation,
   deleteStation,
+  updateStation
 };

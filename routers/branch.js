@@ -1,8 +1,8 @@
 const express = require("express");
 const { auth } = require("../helpers/auth");
-const { postBranch, deleteBranch } = require("../controllers/branch");
+const { postBranch, deleteBranch, updateBranch } = require("../controllers/branch");
 const router = express.Router();
-router.post("/branch", postBranch);
-router.delete("/branch", deleteBranch);
-
+router.post("/branch/create", auth(["admin"]), postBranch);
+router.delete("/branch/delete", auth(["admin"]), deleteBranch);
+router.patch("/branch/update", auth(["admin"]), updateBranch)
 module.exports = router;

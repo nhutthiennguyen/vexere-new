@@ -51,7 +51,24 @@ const deleteBranch = async (req, res) => {
     res.status(500).send({ messege: "Something went wrong" });
   }
 };
+const updateBranch = async (req, res) => {
+  const { id } = req.query;
+  const { name, hotline, address } = req.body;
+  try {
+    const foundedBranch = await Branch.findById(id);
+    if (!foundedBranch) return res.status(400).send({ message: "invalid branch" });
+    foundedBranch.name = name;
+    foundedBranch.hotline = hotline;
+    foundedBranch.address = address;
+    const result = await foundedBranch.save();
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ messege: "Something went wrong" });
+  }
+};
 module.exports = {
   postBranch,
   deleteBranch,
+  updateBranch
 };
